@@ -75,14 +75,13 @@ export class AiService {
         messages: [
           {
             role: 'system',
-            content: 'Você é um juiz especialista em batalhas Pokémon. Analise cuidadosamente os pokémons e determine o vencedor baseado em tipos, estatísticas e vantagens elementais.',
+            content: 'Você é um juiz especialista em batalhas Pokémon. Analise cuidadosamente os pokémons e determine o vencedor baseado em tipos, estatísticas e vantagens elementais. SEMPRE retorne suas respostas em formato JSON válido.',
           },
           {
             role: 'user',
             content: prompt,
           },
         ],
-        response_format: { type: 'json_object' },
         temperature: 0.7,
       });
 
