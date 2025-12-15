@@ -12,40 +12,40 @@ import {
 @Entity('battles')
 export class Battle {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   /** ID ou nome do primeiro pokémon */
   @Column({ type: 'varchar' })
-  pokemon1Id: string;
+  pokemon1Id!: string;
 
   /** Nome do primeiro pokémon */
   @Column({ type: 'varchar' })
-  pokemon1Name: string;
+  pokemon1Name!: string;
 
   /** ID ou nome do segundo pokémon */
   @Column({ type: 'varchar' })
-  pokemon2Id: string;
+  pokemon2Id!: string;
 
   /** Nome do segundo pokémon */
   @Column({ type: 'varchar' })
-  pokemon2Name: string;
+  pokemon2Name!: string;
 
   /** ID do pokémon vencedor */
   @Column({ type: 'varchar' })
-  winnerId: string;
+  winnerId!: string;
 
   /** Nome do pokémon vencedor */
   @Column({ type: 'varchar' })
-  winnerName: string;
+  winnerName!: string;
 
   /**
    * Log detalhado da batalha em formato JSON
    * Contém narrativa, raciocínio da IA e outros detalhes
    */
   @Column({ type: 'jsonb' })
-  battleLog: Record<string, any>;
+  battleLog!: Record<string, any>;
 
   /** Data e hora de criação da batalha */
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  createdAt!: Date;
 }
