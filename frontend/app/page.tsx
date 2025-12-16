@@ -34,11 +34,11 @@ export default function HomePage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Cabeçalho */}
-      <div className="mb-8">
+      <div className="mb-8 bg-white rounded-lg shadow-sm p-6">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
           Pokédex
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-700">
           {data?.count ? `${data.count} pokémons disponíveis` : 'Carregando...'}
         </p>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pokemonApi, battleApi, type BattleResult } from '@/lib/api';
+import { PokemonSearchInput } from '@/components/PokemonSearchInput';
 
 /**
  * Página Battle Arena
@@ -12,13 +13,15 @@ import { pokemonApi, battleApi, type BattleResult } from '@/lib/api';
 export default function BattlePage() {
   const [pokemon1Id, setPokemon1Id] = useState('');
   const [pokemon2Id, setPokemon2Id] = useState('');
+  const [pokemon1Name, setPokemon1Name] = useState('');
+  const [pokemon2Name, setPokemon2Name] = useState('');
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
   const queryClient = useQueryClient();
 
-  // Busca lista de pokémons para seletores
-  const { data: pokemonList } = useQuery({
+  // Busca lista de pokémons para seletores (limite máximo do backend: 100)
+  const { data: pokemonList, isLoading: isLoadingPokemon } = useQuery({
     queryKey: ['pokemons-for-battle'],
-    queryFn: () => pokemonApi.getList(151, 0), // Primeiros 151 pokémons
+    queryFn: () => pokemonApi.getList(100, 0), // Primeiros 100 pokémons (limite máximo)
   });
 
   // Busca histórico de batalhas
@@ -54,7 +57,9 @@ export default function BattlePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-gray-900 mb-8">Battle Arena</h1>
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h1 className="text-4xl font-bold text-gray-900">Battle Arena</h1>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Seleção e Simulação de Batalha */}
@@ -64,52 +69,62 @@ export default function BattlePage() {
           </h2>
 
           {/* Seletores */}
-          <div className="space-y-6 mb-6">
-            {/* Pokémon 1 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pokémon 1
-              </label>
-              <select
-                value={pokemon1Id}
-                onChange={(e) => setPokemon1Id(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize"
-              >
-                <option value="">Selecione um pokémon</option>
-                {pokemonList?.results.map((pokemon) => (
-                  <option key={pokemon.id} value={pokemon.id}>
-                    #{String(pokemon.id).padStart(3, '0')} - {pokemon.name}
-                  </option>
-                ))}
-              </select>
+          {isLoadingPokemon ? (
+            <div className="space-y-6 mb-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+              </div>
+              <div className="flex justify-center">
+                <span className="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-2 rounded-full font-bold text-lg">
+                  VS
+                </span>
+              </div>
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+              </div>
             </div>
+          ) : pokemonList && pokemonList.results && pokemonList.results.length > 0 ? (
+            <div className="space-y-6 mb-6">
+              {/* Pokémon 1 */}
+              <PokemonSearchInput
+                pokemonList={pokemonList.results}
+                value={pokemon1Name}
+                onChange={(id, name) => {
+                  setPokemon1Id(id);
+                  setPokemon1Name(name);
+                }}
+                placeholder="Digite ou selecione um pokémon"
+                label="Pokémon 1"
+              />
 
-            {/* VS Badge */}
-            <div className="flex justify-center">
-              <span className="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-2 rounded-full font-bold text-lg">
-                VS
-              </span>
-            </div>
+              {/* VS Badge */}
+              <div className="flex justify-center">
+                <span className="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-2 rounded-full font-bold text-lg">
+                  VS
+                </span>
+              </div>
 
-            {/* Pokémon 2 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pokémon 2
-              </label>
-              <select
-                value={pokemon2Id}
-                onChange={(e) => setPokemon2Id(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent capitalize"
-              >
-                <option value="">Selecione um pokémon</option>
-                {pokemonList?.results.map((pokemon) => (
-                  <option key={pokemon.id} value={pokemon.id}>
-                    #{String(pokemon.id).padStart(3, '0')} - {pokemon.name}
-                  </option>
-                ))}
-              </select>
+              {/* Pokémon 2 */}
+              <PokemonSearchInput
+                pokemonList={pokemonList.results}
+                value={pokemon2Name}
+                onChange={(id, name) => {
+                  setPokemon2Id(id);
+                  setPokemon2Name(name);
+                }}
+                placeholder="Digite ou selecione um pokémon"
+                label="Pokémon 2"
+              />
             </div>
-          </div>
+          ) : (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-800 text-sm">
+                Erro ao carregar lista de pokémons. Verifique se o backend está rodando.
+              </p>
+            </div>
+          )}
 
           {/* Botão de Batalha */}
           <button

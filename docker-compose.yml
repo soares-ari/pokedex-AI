@@ -30,6 +30,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pokedex
       POKEAPI_BASE_URL: https://pokeapi.co/api/v2
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
       PORT: 4000
       NODE_ENV: development
     ports:
@@ -44,24 +45,25 @@ services:
       - /app/node_modules
     command: npm run start:dev
 
-  # Frontend Next.js (será adicionado na Sprint 4)
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/Dockerfile.frontend
-  #   container_name: pokedex-frontend
-  #   environment:
-  #     NEXT_PUBLIC_API_URL: http://localhost:4000/api
-  #   ports:
-  #     - '3000:3000'
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - pokedex-network
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   command: npm run dev
+  # Frontend Next.js
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: pokedex-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    networks:
+      - pokedex-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
 
 volumes:
   postgres_data:
