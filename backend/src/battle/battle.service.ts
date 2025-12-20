@@ -143,14 +143,27 @@ export class BattleService {
       take: limit,
     });
 
-    const battleItems: BattleHistoryItemDto[] = battles.map((battle) => ({
-      id: battle.id,
-      pokemon1Name: battle.pokemon1Name,
-      pokemon2Name: battle.pokemon2Name,
-      winnerName: battle.winnerName,
-      createdAt: battle.createdAt,
-      battleLog: battle.battleLog,
-    }));
+    // Busca detalhes dos pokémons para obter imagens
+    const battleItems: BattleHistoryItemDto[] = await Promise.all(
+      battles.map(async (battle) => {
+        const pokemon1 = await this.pokemonService.getPokemonById(battle.pokemon1Id);
+        const pokemon2 = await this.pokemonService.getPokemonById(battle.pokemon2Id);
+
+        return {
+          id: battle.id,
+          pokemon1Id: battle.pokemon1Id,
+          pokemon1Name: battle.pokemon1Name,
+          pokemon1Image: pokemon1.sprites.other['official-artwork'].front_default,
+          pokemon2Id: battle.pokemon2Id,
+          pokemon2Name: battle.pokemon2Name,
+          pokemon2Image: pokemon2.sprites.other['official-artwork'].front_default,
+          winnerId: battle.winnerId,
+          winnerName: battle.winnerName,
+          createdAt: battle.createdAt,
+          battleLog: battle.battleLog,
+        };
+      }),
+    );
 
     return {
       total,

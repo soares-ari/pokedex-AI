@@ -81,8 +81,13 @@ export interface BattleResult {
 
 export interface BattleHistoryItem {
   id: string;
+  pokemon1Id: string;
   pokemon1Name: string;
+  pokemon1Image: string;
+  pokemon2Id: string;
   pokemon2Name: string;
+  pokemon2Image: string;
+  winnerId: string;
   winnerName: string;
   createdAt: string;
   battleLog: {

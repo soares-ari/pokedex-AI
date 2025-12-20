@@ -21,8 +21,13 @@ export class BattleHistoryQueryDto {
  */
 export class BattleHistoryItemDto {
   id!: string;
+  pokemon1Id!: string;
   pokemon1Name!: string;
+  pokemon1Image!: string;
+  pokemon2Id!: string;
   pokemon2Name!: string;
+  pokemon2Image!: string;
+  winnerId!: string;
   winnerName!: string;
   createdAt!: Date;
   battleLog!: {

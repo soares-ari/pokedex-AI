@@ -28,6 +28,13 @@ export function PokemonSearchInput({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Sincroniza searchTerm com o valor externo (para pré-seleção via query params)
+  useEffect(() => {
+    if (value && value !== searchTerm) {
+      setSearchTerm(value);
+    }
+  }, [value]);
+
   // Filtra pokémons baseado no termo de busca
   useEffect(() => {
     if (!pokemonList || pokemonList.length === 0) {

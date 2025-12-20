@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pokemonApi, battleApi, type BattleResult } from '@/lib/api';
 import { PokemonSearchInput } from '@/components/PokemonSearchInput';
@@ -9,8 +10,10 @@ import { PokemonSearchInput } from '@/components/PokemonSearchInput';
  * Página Battle Arena
  * Permite selecionar dois pokémons e simular uma batalha com IA
  * Exibe histórico de batalhas anteriores
+ * Suporta pré-seleção via query params: ?pokemon1=25&pokemon2=1
  */
 export default function BattlePage() {
+  const searchParams = useSearchParams();
   const [pokemon1Id, setPokemon1Id] = useState('');
   const [pokemon2Id, setPokemon2Id] = useState('');
   const [pokemon1Name, setPokemon1Name] = useState('');
@@ -30,6 +33,35 @@ export default function BattlePage() {
     queryKey: ['battle-history'],
     queryFn: () => battleApi.getHistory(10),
   });
+
+  // Pré-seleciona pokémons baseado em query params
+  useEffect(() => {
+    const pokemon1Param = searchParams.get('pokemon1');
+    const pokemon2Param = searchParams.get('pokemon2');
+
+    if (pokemon1Param && pokemonList?.results) {
+      const pokemon = pokemonList.results.find(p => p.id.toString() === pokemon1Param || p.name === pokemon1Param);
+      if (pokemon) {
+        setPokemon1Id(pokemon.id.toString());
+        setPokemon1Name(pokemon.name);
+      } else {
+        // Se não encontrar na lista, usa o valor direto (entrada manual)
+        setPokemon1Id(pokemon1Param);
+        setPokemon1Name(pokemon1Param);
+      }
+    }
+
+    if (pokemon2Param && pokemonList?.results) {
+      const pokemon = pokemonList.results.find(p => p.id.toString() === pokemon2Param || p.name === pokemon2Param);
+      if (pokemon) {
+        setPokemon2Id(pokemon.id.toString());
+        setPokemon2Name(pokemon.name);
+      } else {
+        setPokemon2Id(pokemon2Param);
+        setPokemon2Name(pokemon2Param);
+      }
+    }
+  }, [searchParams, pokemonList]);
 
   // Mutation para simular batalha
   const battleMutation = useMutation({
@@ -189,14 +221,40 @@ export default function BattlePage() {
                       onClick={() => setExpandedBattleId(isExpanded ? null : battle.id)}
                       className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium capitalize text-gray-700">
-                          {battle.pokemon1Name}
-                        </span>
-                        <span className="text-sm text-gray-500">VS</span>
-                        <span className="font-medium capitalize text-gray-700">
-                          {battle.pokemon2Name}
-                        </span>
+                      <div className="flex items-center justify-between mb-3">
+                        {/* Pokemon 1 com avatar */}
+                        <div className="flex items-center gap-2 flex-1">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-blue-200 shrink-0">
+                            <img
+                              src={battle.pokemon1Image}
+                              alt={battle.pokemon1Name}
+                              className="w-full h-full object-contain p-1"
+                              loading="lazy"
+                            />
+                          </div>
+                          <span className="font-semibold capitalize text-gray-800 truncate">
+                            {battle.pokemon1Name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-100 to-blue-100 rounded-full shrink-0">
+                          <span className="text-xs font-bold text-red-600">VS</span>
+                        </div>
+
+                        {/* Pokemon 2 com avatar */}
+                        <div className="flex items-center gap-2 flex-1 justify-end">
+                          <span className="font-semibold capitalize text-gray-800 truncate">
+                            {battle.pokemon2Name}
+                          </span>
+                          <div className="w-12 h-12 bg-gradient-to-br from-red-50 to-red-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-red-200 shrink-0">
+                            <img
+                              src={battle.pokemon2Image}
+                              alt={battle.pokemon2Name}
+                              className="w-full h-full object-contain p-1"
+                              loading="lazy"
+                            />
+                          </div>
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">
