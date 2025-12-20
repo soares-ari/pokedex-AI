@@ -43,7 +43,11 @@ export class Battle {
    * Contém narrativa, raciocínio da IA e outros detalhes
    */
   @Column({ type: 'jsonb' })
-  battleLog!: Record<string, any>;
+  battleLog!: {
+    reasoning: string;
+    battleNarrative: string;
+    [key: string]: any;
+  };
 
   /** Data e hora de criação da batalha */
   @CreateDateColumn({ type: 'timestamp' })

@@ -25,6 +25,10 @@ export class BattleHistoryItemDto {
   pokemon2Name!: string;
   winnerName!: string;
   createdAt!: Date;
+  battleLog!: {
+    reasoning: string;
+    battleNarrative: string;
+  };
 }
 
 /**

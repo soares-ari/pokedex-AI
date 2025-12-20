@@ -16,12 +16,13 @@ export default function BattlePage() {
   const [pokemon1Name, setPokemon1Name] = useState('');
   const [pokemon2Name, setPokemon2Name] = useState('');
   const [battleResult, setBattleResult] = useState<BattleResult | null>(null);
+  const [expandedBattleId, setExpandedBattleId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // Busca lista de pokémons para seletores (limite máximo do backend: 100)
+  // Busca pokémons iniciais para seletores (usuário pode buscar pelo nome para encontrar qualquer um dos 1350)
   const { data: pokemonList, isLoading: isLoadingPokemon } = useQuery({
     queryKey: ['pokemons-for-battle'],
-    queryFn: () => pokemonApi.getList(100, 0), // Primeiros 100 pokémons (limite máximo)
+    queryFn: () => pokemonApi.getList(151, 0), // Primeira geração + busca pelo nome permite acessar todos
   });
 
   // Busca histórico de batalhas
@@ -175,35 +176,82 @@ export default function BattlePage() {
 
           {history && history.battles.length > 0 ? (
             <div className="space-y-4">
-              {history.battles.map((battle) => (
-                <div
-                  key={battle.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium capitalize text-gray-700">
-                      {battle.pokemon1Name}
-                    </span>
-                    <span className="text-sm text-gray-500">VS</span>
-                    <span className="font-medium capitalize text-gray-700">
-                      {battle.pokemon2Name}
-                    </span>
+              {history.battles.map((battle) => {
+                const isExpanded = expandedBattleId === battle.id;
+
+                return (
+                  <div
+                    key={battle.id}
+                    className="border border-gray-200 rounded-lg overflow-hidden transition-all"
+                  >
+                    {/* Header - Clickable */}
+                    <div
+                      onClick={() => setExpandedBattleId(isExpanded ? null : battle.id)}
+                      className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium capitalize text-gray-700">
+                          {battle.pokemon1Name}
+                        </span>
+                        <span className="text-sm text-gray-500">VS</span>
+                        <span className="font-medium capitalize text-gray-700">
+                          {battle.pokemon2Name}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">
+                          {new Date(battle.createdAt).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold capitalize">
+                            🏆 {battle.winnerName}
+                          </span>
+                          <svg
+                            className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expandable Content */}
+                    {isExpanded && battle.battleLog && (
+                      <div className="border-t border-gray-200 p-4 bg-gradient-to-br from-gray-50 to-white">
+                        {/* Reasoning Section */}
+                        <div className="mb-4">
+                          <p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>💡</span>
+                            <span>Raciocínio da IA:</span>
+                          </p>
+                          <p className="text-gray-900 text-sm leading-relaxed">
+                            {battle.battleLog.reasoning}
+                          </p>
+                        </div>
+
+                        {/* Battle Narrative Section */}
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <span>📖</span>
+                            <span>Narrativa da Batalha:</span>
+                          </p>
+                          <p className="text-gray-900 text-sm leading-relaxed whitespace-pre-wrap">
+                            {battle.battleLog.battleNarrative}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      {new Date(battle.createdAt).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold capitalize">
-                      🏆 {battle.winnerName}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-500 text-center py-8">

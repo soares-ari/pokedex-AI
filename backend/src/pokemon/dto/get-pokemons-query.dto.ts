@@ -7,13 +7,13 @@ import { Type } from 'class-transformer';
 export class GetPokemonsQueryDto {
   /**
    * Número de pokémons a retornar
-   * Mínimo: 1, Máximo: 100
+   * Mínimo: 1, Máximo: 1350 (total de pokémons disponíveis na PokeAPI)
    */
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'Limit deve ser um número inteiro' })
   @Min(1, { message: 'Limit deve ser no mínimo 1' })
-  @Max(100, { message: 'Limit deve ser no máximo 100' })
+  @Max(1350, { message: 'Limit deve ser no máximo 1350' })
   limit?: number = 20;
 
   /**

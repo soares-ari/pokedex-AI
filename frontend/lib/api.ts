@@ -85,6 +85,10 @@ export interface BattleHistoryItem {
   pokemon2Name: string;
   winnerName: string;
   createdAt: string;
+  battleLog: {
+    reasoning: string;
+    battleNarrative: string;
+  };
 }
 
 export interface BattleHistoryResponse {

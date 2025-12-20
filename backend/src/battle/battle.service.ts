@@ -149,6 +149,7 @@ export class BattleService {
       pokemon2Name: battle.pokemon2Name,
       winnerName: battle.winnerName,
       createdAt: battle.createdAt,
+      battleLog: battle.battleLog,
     }));
 
     return {
