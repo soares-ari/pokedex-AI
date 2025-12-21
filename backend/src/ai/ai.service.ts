@@ -75,14 +75,14 @@ export class AiService {
         messages: [
           {
             role: 'system',
-            content: 'Você é um juiz especialista em batalhas Pokémon. Analise cuidadosamente os pokémons e determine o vencedor baseado em tipos, estatísticas e vantagens elementais. SEMPRE retorne suas respostas em formato JSON válido.',
+            content: 'Você é um juiz especialista em batalhas Pokémon. Analise cuidadosamente os pokémons e determine o vencedor baseado em tipos, estatísticas e vantagens elementais. IMPORTANTE: O campo "winner" e a narrativa DEVEM ser consistentes - se declarar "pokemon1" como vencedor, a narrativa deve confirmar isso. SEMPRE retorne suas respostas em formato JSON válido.',
           },
           {
             role: 'user',
             content: prompt,
           },
         ],
-        temperature: 0.7,
+        temperature: 0.3,
       });
 
       const content = response.choices[0]?.message?.content;
@@ -98,7 +98,25 @@ export class AiService {
         throw new Error('Invalid response format from OpenAI');
       }
 
-      this.logger.log(`Battle completed. Winner: ${result.winner}`);
+      // CRÍTICO: Valida que winner é exatamente "pokemon1" ou "pokemon2"
+      if (result.winner !== 'pokemon1' && result.winner !== 'pokemon2') {
+        this.logger.error(
+          `AI returned invalid winner value: "${result.winner}". Must be "pokemon1" or "pokemon2". Full response: ${content}`,
+        );
+        throw new Error(`Invalid winner value from AI: ${result.winner}`);
+      }
+
+      // Valida consistência entre winner e narrativa
+      const winnerName = result.winner === 'pokemon1' ? pokemon1.name : pokemon2.name;
+      const narrativeLower = result.battleNarrative.toLowerCase();
+
+      if (!narrativeLower.includes(winnerName.toLowerCase())) {
+        this.logger.warn(
+          `Inconsistency detected: winner is ${result.winner} (${winnerName}) but name not found in narrative. Narrative: "${result.battleNarrative}"`,
+        );
+      }
+
+      this.logger.log(`Battle completed. Winner: ${result.winner} (${winnerName})`);
 
       return result;
     } catch (error: any) {
@@ -141,11 +159,24 @@ Considere:
 3. Velocidade (quem ataca primeiro)
 4. Resistências e fraquezas
 
-Retorne um JSON com a seguinte estrutura:
+**REGRAS CRÍTICAS**:
+1. O campo "winner" DEVE ser EXATAMENTE a string "pokemon1" ou "pokemon2" (NÃO use o nome do pokémon!)
+2. Se ${pokemon1.name} vencer, retorne: "winner": "pokemon1"
+3. Se ${pokemon2.name} vencer, retorne: "winner": "pokemon2"
+4. A narrativa DEVE ser consistente com o vencedor declarado
+
+Retorne APENAS um JSON válido com esta estrutura EXATA:
 {
-  "winner": "pokemon1" ou "pokemon2",
-  "reasoning": "Explicação técnica de 2-3 frases sobre por que esse pokémon venceu",
-  "battleNarrative": "Narrativa épica da batalha em 3-4 frases, descrevendo os momentos chave do combate"
+  "winner": "pokemon1",
+  "reasoning": "Explicação técnica de 2-3 frases",
+  "battleNarrative": "Narrativa épica da batalha em 3-4 frases confirmando o vencedor"
+}
+
+EXEMPLO CORRETO se ${pokemon1.name} vencer:
+{
+  "winner": "pokemon1",
+  "reasoning": "${pokemon1.name} tem vantagem...",
+  "battleNarrative": "...${pokemon1.name} emerge vitorioso"
 }
     `.trim();
   }
