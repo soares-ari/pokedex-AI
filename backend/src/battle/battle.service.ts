@@ -146,8 +146,8 @@ export class BattleService {
     // Busca detalhes dos pokémons para obter imagens
     const battleItems: BattleHistoryItemDto[] = await Promise.all(
       battles.map(async (battle) => {
-        const pokemon1 = await this.pokemonService.getPokemonById(battle.pokemon1Id);
-        const pokemon2 = await this.pokemonService.getPokemonById(battle.pokemon2Id);
+        const pokemon1 = await this.pokemonService.findOne(battle.pokemon1Id);
+        const pokemon2 = await this.pokemonService.findOne(battle.pokemon2Id);
 
         return {
           id: battle.id,
