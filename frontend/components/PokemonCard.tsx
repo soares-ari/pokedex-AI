@@ -25,7 +25,7 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
 
   return (
     <Link href={`/pokemon/${pokemon.id}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border-2 border-transparent hover:border-blue-400 cursor-pointer group">{
+      <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border-2 border-transparent hover:border-blue-400 cursor-pointer group">
         {/* Imagem do pokémon com gradiente de fundo */}
         <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
           <Image

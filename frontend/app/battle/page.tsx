@@ -1,18 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pokemonApi, battleApi, type BattleResult } from '@/lib/api';
 import { PokemonSearchInput } from '@/components/PokemonSearchInput';
 
 /**
- * Página Battle Arena
- * Permite selecionar dois pokémons e simular uma batalha com IA
- * Exibe histórico de batalhas anteriores
- * Suporta pré-seleção via query params: ?pokemon1=25&pokemon2=1
+ * Componente interno com useSearchParams
  */
-export default function BattlePage() {
+function BattleArena() {
   const searchParams = useSearchParams();
   const [pokemon1Id, setPokemon1Id] = useState('');
   const [pokemon2Id, setPokemon2Id] = useState('');
@@ -319,5 +316,42 @@ export default function BattlePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Página Battle Arena
+ * Permite selecionar dois pokémons e simular uma batalha com IA
+ * Exibe histórico de batalhas anteriores
+ * Suporta pré-seleção via query params: ?pokemon1=25&pokemon2=1
+ */
+export default function BattlePage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h1 className="text-4xl font-bold text-gray-900">Battle Arena</h1>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-lg shadow-lg p-6 animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
+            <div className="space-y-6">
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-14 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
+            <div className="space-y-4">
+              <div className="h-24 bg-gray-200 rounded"></div>
+              <div className="h-24 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <BattleArena />
+    </Suspense>
   );
 }
